@@ -1,0 +1,13 @@
+src/
+**/__tests__/
+*.test.ts
+*.spec.ts
+tsconfig.json
+.gitignore
+examples.ts
+vitest.config.ts
+node_modules/
+.DS_Store
+*.log
+.env
+.env.local

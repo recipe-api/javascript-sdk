@@ -1,0 +1,45 @@
+{
+  "name": "@recipe-api/sdk",
+  "version": "1.0.0",
+  "description": "Official TypeScript/JavaScript SDK for Recipe API",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./errors": {
+      "import": "./dist/errors.js",
+      "types": "./dist/errors.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "recipe",
+    "api",
+    "nutrition",
+    "food",
+    "ingredient",
+    "cooking"
+  ],
+  "author": "Recipe API",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0",
+    "vitest": "^4.0.18"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}
