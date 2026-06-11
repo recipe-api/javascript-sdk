@@ -1,5 +1,5 @@
-import type { RecipeApiClient } from '../client';
-import type { DiscoveryResponse, CategoryItem } from '../generated/types';
+import type { RecipeApiClient } from '../client.js';
+import type { DiscoveryResponse, CategoryItem } from '../generated/types.js';
 
 /**
  * Discovery resource for browsing categories, cuisines, and dietary options

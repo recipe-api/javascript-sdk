@@ -3,7 +3,7 @@ import {
   RecipeApiClient,
   UnauthorizedError,
   ValidationError,
-} from '../index';
+} from '../index.js';
 
 describe('RecipeApiClient', () => {
   it('should initialize without API key', () => {

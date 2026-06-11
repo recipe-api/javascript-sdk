@@ -1,5 +1,5 @@
 // Main client
-export { RecipeApiClient, type ClientOptions } from './client';
+export { RecipeApiClient, type ClientOptions } from './client.js';
 
 // Error classes
 export {
@@ -11,13 +11,13 @@ export {
   ValidationError,
   LimitExceededError,
   NetworkError,
-} from './errors';
+} from './errors.js';
 
 // Resources
-export { RecipesResource } from './resources/recipes';
-export { IngredientsResource } from './resources/ingredients';
-export { DiscoveryResource } from './resources/discovery';
-export { GenerateResource } from './resources/generate';
+export { RecipesResource } from './resources/recipes.js';
+export { IngredientsResource } from './resources/ingredients.js';
+export { DiscoveryResource } from './resources/discovery.js';
+export { GenerateResource } from './resources/generate.js';
 
 // Type definitions
 export type {
@@ -48,4 +48,4 @@ export type {
   FilterDifficulty,
   RecipeSearchFilters,
   IngredientSearchFilters,
-} from './generated/types';
+} from './generated/types.js';

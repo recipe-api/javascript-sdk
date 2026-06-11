@@ -1,5 +1,5 @@
-import type { RecipeApiClient } from '../client';
-import type { GenerateRequest, RecipeResponse } from '../generated/types';
+import type { RecipeApiClient } from '../client.js';
+import type { GenerateRequest, RecipeResponse } from '../generated/types.js';
 
 /**
  * Generate resource for creating new recipes with AI

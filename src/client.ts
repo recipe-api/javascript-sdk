@@ -7,11 +7,11 @@ import {
   ValidationError,
   LimitExceededError,
   NetworkError,
-} from './errors';
-import { RecipesResource } from './resources/recipes';
-import { IngredientsResource } from './resources/ingredients';
-import { DiscoveryResource } from './resources/discovery';
-import { GenerateResource } from './resources/generate';
+} from './errors.js';
+import { RecipesResource } from './resources/recipes.js';
+import { IngredientsResource } from './resources/ingredients.js';
+import { DiscoveryResource } from './resources/discovery.js';
+import { GenerateResource } from './resources/generate.js';
 
 export interface ClientOptions {
   apiKey?: string;

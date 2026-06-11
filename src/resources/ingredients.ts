@@ -1,8 +1,8 @@
-import type { RecipeApiClient } from '../client';
+import type { RecipeApiClient } from '../client.js';
 import type {
   IngredientListResponse,
   IngredientSearchFilters,
-} from '../generated/types';
+} from '../generated/types.js';
 
 /**
  * Ingredients resource for browsing the ingredient database

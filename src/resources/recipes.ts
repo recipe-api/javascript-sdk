@@ -1,10 +1,10 @@
-import type { RecipeApiClient } from '../client';
+import type { RecipeApiClient } from '../client.js';
 import type {
   Recipe,
   RecipeListResponse,
   RecipeResponse,
   RecipeSearchFilters,
-} from '../generated/types';
+} from '../generated/types.js';
 
 /**
  * Recipes resource for browsing and fetching recipe details
