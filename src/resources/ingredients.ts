@@ -1,6 +1,7 @@
 import type { RecipeApiClient } from '../client.js';
 import type {
   IngredientListResponse,
+  IngredientResponse,
   IngredientSearchFilters,
 } from '../generated/types.js';
 
@@ -44,6 +45,19 @@ export class IngredientsResource {
       page,
       per_page: perPage,
     });
+  }
+
+  /**
+   * Get a single ingredient with its full per-100g USDA nutrition.
+   * Discovery via list()/search() is free; this fetches the nutrition and
+   * costs 1 credit.
+   */
+  async get(id: string): Promise<IngredientResponse> {
+    if (!id || typeof id !== 'string') {
+      throw new Error('Ingredient ID must be a valid string');
+    }
+
+    return this.client.request('GET', `/api/v1/ingredients/${id}`);
   }
 
   /**

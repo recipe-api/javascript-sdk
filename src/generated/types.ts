@@ -213,6 +213,24 @@ export interface IngredientListResponse {
   };
 }
 
+// Per-100g USDA nutrition (32 nutrients). Mirrors recipe nutrition on a
+// per-100g basis rather than per serving.
+export interface IngredientNutrition {
+  per_100g: NutritionData;
+  sources: string[];
+}
+
+// Ingredient with nutrition, returned by GET /api/v1/ingredients/:id (1 credit).
+// nutrition is null only for custom ingredients with no USDA match yet.
+export interface IngredientDetail extends IngredientItem {
+  nutrition: IngredientNutrition | null;
+}
+
+export interface IngredientResponse {
+  data: IngredientDetail;
+  usage?: Usage;
+}
+
 export interface CategoryItem {
   name: string;
   count: number;
