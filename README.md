@@ -14,12 +14,43 @@ Official SDK for [Recipe API](https://recipe-api.com) – the B2B recipe API wit
 
 ## Installation
 
+`@recipe-api/sdk` is not published to npm yet. Direct GitHub installs are not
+usable either: the GitHub npm tarball currently contains only `README.md` and
+`package.json`, while this package expects built files in `dist/`.
+
+Build the SDK first, then install that built checkout into your app:
+
 ```bash
-npm install @recipe-api/sdk
-# or
-yarn add @recipe-api/sdk
-# or
-pnpm add @recipe-api/sdk
+git clone https://github.com/recipe-api/javascript-sdk.git
+cd javascript-sdk
+npm install
+npm run build
+
+cd ../your-app
+npm install ../javascript-sdk
+```
+
+From this monorepo checkout, use the same build-then-local-install flow:
+
+```bash
+cd packages/sdk-node
+npm install
+npm run build
+
+cd /path/to/your-app
+npm install /Users/paulcrossland/Code/recipe-api/packages/sdk-node
+```
+
+For CI or a reproducible artifact, pack after building and install the tarball:
+
+```bash
+cd packages/sdk-node
+npm install
+npm run build
+npm pack
+
+cd /path/to/your-app
+npm install /path/to/recipe-api-sdk-1.1.0.tgz
 ```
 
 ## Quick Start
