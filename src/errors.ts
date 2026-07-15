@@ -32,11 +32,18 @@ export class ForbiddenError extends RecipeApiError {
 }
 
 export class RateLimitError extends RecipeApiError {
+  /**
+   * @param retryAfter Seconds to wait before retrying (from the Retry-After
+   *   response header), if the server provided one.
+   * @param code Server error code (e.g. RATE_LIMITED for throttles,
+   *   GENERATE_LIMIT_EXCEEDED / UNIQUE_RECIPE_LIMIT_EXCEEDED for hard caps).
+   */
   constructor(
     message = 'Rate limit exceeded',
     public retryAfter?: number,
+    code = 'RATE_LIMIT_EXCEEDED',
   ) {
-    super('RATE_LIMIT_EXCEEDED', message, 429);
+    super(code, message, 429);
     this.name = 'RateLimitError';
     Object.setPrototypeOf(this, RateLimitError.prototype);
   }
@@ -51,21 +58,17 @@ export class NotFoundError extends RecipeApiError {
 }
 
 export class ValidationError extends RecipeApiError {
+  /**
+   * @param code Server error code (e.g. BAD_REQUEST) when available.
+   */
   constructor(
     message = 'Invalid request',
     context?: Record<string, any>,
+    code = 'VALIDATION_ERROR',
   ) {
-    super('VALIDATION_ERROR', message, 400, context);
+    super(code, message, 400, context);
     this.name = 'ValidationError';
     Object.setPrototypeOf(this, ValidationError.prototype);
-  }
-}
-
-export class LimitExceededError extends RecipeApiError {
-  constructor(message = 'Monthly limit exceeded') {
-    super('LIMIT_EXCEEDED', message, 402);
-    this.name = 'LimitExceededError';
-    Object.setPrototypeOf(this, LimitExceededError.prototype);
   }
 }
 
@@ -77,5 +80,14 @@ export class NetworkError extends RecipeApiError {
     super('NETWORK_ERROR', message, undefined, context);
     this.name = 'NetworkError';
     Object.setPrototypeOf(this, NetworkError.prototype);
+  }
+}
+
+export class TimeoutError extends NetworkError {
+  constructor(message = 'Request timed out') {
+    super(message);
+    this.name = 'TimeoutError';
+    this.code = 'TIMEOUT';
+    Object.setPrototypeOf(this, TimeoutError.prototype);
   }
 }

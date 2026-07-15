@@ -9,7 +9,7 @@ export interface Recipe {
   description: string;
   category: string;
   cuisine: string;
-  difficulty: 'Easy' | 'Intermediate' | 'Advanced';
+  difficulty: 'Easy' | 'Intermediate' | 'Advanced' | 'Professional';
   tags: string[];
   meta: RecipeMeta;
   dietary: Dietary;
@@ -29,7 +29,7 @@ export interface RecipeListItem {
   description: string;
   category: string;
   cuisine: string;
-  difficulty: 'Easy' | 'Intermediate' | 'Advanced';
+  difficulty: 'Easy' | 'Intermediate' | 'Advanced' | 'Professional';
   tags: string[];
   meta: RecipeMeta;
   dietary: Dietary;
@@ -168,19 +168,45 @@ export interface Usage {
   daily_limit: number;
 }
 
+// Only title and key_ingredients are required by POST /api/v1/generate;
+// the other constraints are optional hints (the route clamps/normalizes them).
 export interface GenerateRequest {
   title: string;
   key_ingredients: string[];
-  cuisine: string;
-  difficulty: 'Easy' | 'Intermediate' | 'Advanced' | 'Professional';
-  equipment: string[];
-  time: number;
+  cuisine?: string;
+  difficulty?: 'Easy' | 'Intermediate' | 'Advanced' | 'Professional';
+  equipment?: string[];
+  time?: number;
   notes?: string;
 }
 
 export interface RecipeResponse {
   data: Recipe;
   usage?: Usage;
+}
+
+// Response from POST /api/v1/generate?dry_run=true. The recipe is the raw
+// generated draft (not persisted, so no id/slug/image) alongside nutrition
+// matching diagnostics and generation usage.
+export interface GenerateDryRunResponse {
+  data: {
+    recipe: Record<string, unknown>;
+    ingredients: unknown[];
+    nutrition: {
+      per_serving: NutritionData;
+      sources: {
+        sources: string[];
+        matched: number;
+        total: number;
+      };
+      matched: number;
+      unmatched_ingredients: string[];
+    };
+  };
+  generation_usage: Record<string, unknown> | null;
+  nutrition_usage: Array<Record<string, unknown>>;
+  nutrition_complete: boolean;
+  usage: Usage;
 }
 
 export interface RecipeListResponse {
@@ -248,7 +274,7 @@ export interface ApiError {
   };
 }
 
-export type FilterDifficulty = 'Easy' | 'Intermediate' | 'Advanced';
+export type FilterDifficulty = 'Easy' | 'Intermediate' | 'Advanced' | 'Professional';
 
 export interface RecipeSearchFilters {
   q?: string;

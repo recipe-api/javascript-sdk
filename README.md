@@ -6,7 +6,7 @@ Official SDK for [Recipe API](https://recipe-api.com) – the B2B recipe API wit
 
 - **📦 Zero dependencies** - Pure JavaScript/TypeScript, no external libs
 - **⚡ Full TypeScript support** - Complete type definitions from OpenAPI spec
-- **🔄 Automatic retry logic** - Exponential backoff for rate limits (429) and 5xx errors
+- **🔄 Automatic retry logic** - Exponential backoff for GET requests on rate limits (429) and 502 errors; POSTs are never retried
 - **⏱️ Request timeout** - Configurable timeout with sensible defaults
 - **🍴 Complete API coverage** - Browse, search, filter, and generate recipes
 - **🥗 Nutrition filtering** - Filter by calories, macros, dietary flags
@@ -14,11 +14,15 @@ Official SDK for [Recipe API](https://recipe-api.com) – the B2B recipe API wit
 
 ## Installation
 
-`@recipe-api/sdk` is not published to npm yet. Direct GitHub installs are not
-usable either: the GitHub npm tarball currently contains only `README.md` and
-`package.json`, while this package expects built files in `dist/`.
+`@recipe-api/sdk` is not published to npm yet. Direct GitHub installs work:
+the `prepare` script builds `dist/` automatically at install time.
 
-Build the SDK first, then install that built checkout into your app:
+```bash
+npm install github:recipe-api/javascript-sdk
+```
+
+Alternatively, build the SDK first, then install that built checkout into
+your app:
 
 ```bash
 git clone https://github.com/recipe-api/javascript-sdk.git
@@ -109,7 +113,7 @@ const client = new RecipeApiClient({
   apiKey: 'rapi_your_key_here', // Optional - required for authenticated endpoints
   baseUrl: 'https://recipe-api.com', // Optional - defaults to production
   timeout: 30000, // Optional - request timeout in ms (default: 30000)
-  maxRetries: 3, // Optional - max retries for rate limits (default: 3)
+  maxRetries: 3, // Optional - max retries for GET requests (default: 3)
   retryDelay: 500, // Optional - initial retry delay in ms (default: 500)
 });
 
@@ -196,7 +200,9 @@ const categories = await client.ingredients.getCategories();
 Create new recipes with AI and USDA-verified nutrition.
 
 ```typescript
-// Generate recipe
+// Generate recipe — only title and key_ingredients are required;
+// cuisine, difficulty, equipment, time, and notes are optional hints
+// (the API clamps time to 5-720 minutes and truncates long titles)
 const recipe = await client.generate.create({
   title: 'Spicy Tofu Stir-Fry',
   key_ingredients: ['tofu', 'soy sauce', 'ginger', 'vegetables'],
@@ -207,15 +213,20 @@ const recipe = await client.generate.create({
   notes: 'High protein vegan option',
 });
 
-// Dry-run mode (no credits consumed)
+// Dry-run mode: returns the generated draft and nutrition-matching
+// diagnostics without persisting the recipe. Notes:
+// - Only available when the server sets ENABLE_GENERATE_DRY_RUN=true
+//   (otherwise the API returns 403 FORBIDDEN)
+// - Generate usage is still charged before the dry-run branch runs,
+//   so dry-run requests count against your generate limits
+// - The response shape differs from create(): see GenerateDryRunResponse
 const draft = await client.generate.dryRun({
   title: 'Test Recipe',
   key_ingredients: ['eggs', 'flour'],
-  cuisine: 'Mediterranean',
-  difficulty: 'Easy',
-  equipment: ['bowl'],
-  time: 10,
 });
+console.log(draft.data.recipe); // generated draft (not persisted)
+console.log(draft.data.nutrition.unmatched_ingredients);
+console.log(draft.nutrition_complete);
 ```
 
 ## Type Definitions
@@ -227,13 +238,17 @@ import type {
   Recipe,
   RecipeListItem,
   Nutrition,
+  RecipeResponse,
   GenerateRequest,
   IngredientItem,
+  IngredientDetail,
+  IngredientNutrition,
+  IngredientResponse,
   CategoryItem,
 } from '@recipe-api/sdk';
 
-const recipe: Recipe = await client.recipes.get('id');
-const nutrition: Nutrition = recipe.nutrition;
+const recipe: RecipeResponse = await client.recipes.get('id');
+const nutrition: Nutrition = recipe.data.nutrition;
 console.log(nutrition.per_serving.calories);
 ```
 
@@ -249,7 +264,7 @@ import {
   NotFoundError,
   ValidationError,
   ForbiddenError,
-  LimitExceededError,
+  TimeoutError,
 } from '@recipe-api/sdk';
 
 try {
@@ -258,15 +273,18 @@ try {
   if (error instanceof UnauthorizedError) {
     console.log('API key missing or invalid');
   } else if (error instanceof RateLimitError) {
-    console.log(`Rate limited. Retry after: ${error.retryAfter}ms`);
+    // error.code distinguishes throttles (RATE_LIMITED) from hard caps
+    // (GENERATE_LIMIT_EXCEEDED, UNIQUE_RECIPE_LIMIT_EXCEEDED)
+    // error.retryAfter is in seconds (from the Retry-After header)
+    console.log(`Rate limited [${error.code}]. Retry after: ${error.retryAfter}s`);
   } else if (error instanceof NotFoundError) {
     console.log('Recipe not found');
   } else if (error instanceof ValidationError) {
     console.log('Invalid request:', error.context);
   } else if (error instanceof ForbiddenError) {
     console.log('Endpoint requires paid plan');
-  } else if (error instanceof LimitExceededError) {
-    console.log('Monthly credit limit exceeded');
+  } else if (error instanceof TimeoutError) {
+    console.log('Request timed out');
   } else if (error instanceof RecipeApiError) {
     console.log(`Error [${error.code}]:`, error.message);
   }
@@ -275,7 +293,7 @@ try {
 
 ## Retry Logic
 
-The SDK automatically retries requests that hit rate limits (429) or 5xx server errors with exponential backoff:
+The SDK automatically retries **idempotent GET requests** that hit transient rate limits (429) or 502 gateway errors with exponential backoff:
 
 ```typescript
 // Automatic retry with exponential backoff
@@ -290,7 +308,18 @@ const client = new RecipeApiClient({
 });
 ```
 
-Other errors (4xx, validation) are thrown immediately without retry.
+Details:
+
+- **POST requests are never retried.** `POST /generate` charges usage before
+  the work completes, so a retry could double-charge you.
+- **Hard-cap 429s are never retried**, even on GETs: `GENERATE_LIMIT_EXCEEDED`
+  and `UNIQUE_RECIPE_LIMIT_EXCEEDED` mean a plan limit is exhausted and
+  retrying cannot succeed. Check `error.code` on `RateLimitError` to
+  distinguish them from transient `RATE_LIMITED` throttles.
+- When the server sends a `Retry-After` header, the SDK waits that many
+  seconds (capped at 60s) instead of the exponential delay. The value is
+  exposed as `RateLimitError.retryAfter` (seconds).
+- Other errors (4xx, validation) are thrown immediately without retry.
 
 ## Examples
 
@@ -376,7 +405,7 @@ console.log(recipes.meta.total_capped); // True if results capped at 500
 
 ## Rate Limits
 
-The SDK automatically retries rate-limited requests (429), but you should implement backoff in your application:
+The SDK automatically retries rate-limited GET requests (429), but you should implement backoff in your application:
 
 ```typescript
 import { RateLimitError } from '@recipe-api/sdk';
@@ -387,8 +416,9 @@ for (let i = 0; i < recipeIds.length; i++) {
     // Process recipe
   } catch (error) {
     if (error instanceof RateLimitError) {
-      // Wait before retrying manually
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Wait before retrying manually (retryAfter is in seconds)
+      const waitMs = (error.retryAfter ?? 5) * 1000;
+      await new Promise(resolve => setTimeout(resolve, waitMs));
       i--; // Retry this recipe
     }
   }

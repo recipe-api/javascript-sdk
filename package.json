@@ -7,12 +7,12 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     },
     "./errors": {
-      "import": "./dist/errors.js",
-      "types": "./dist/errors.d.ts"
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
     }
   },
   "files": [
@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "prepare": "npm run build",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },

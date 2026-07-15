@@ -9,8 +9,8 @@ export {
   RateLimitError,
   NotFoundError,
   ValidationError,
-  LimitExceededError,
   NetworkError,
+  TimeoutError,
 } from './errors.js';
 
 // Resources
@@ -37,11 +37,15 @@ export type {
   NutritionSummary,
   Usage,
   GenerateRequest,
+  GenerateDryRunResponse,
   RecipeResponse,
   RecipeListResponse,
   DiscoveryResponse,
   IngredientItem,
   IngredientListResponse,
+  IngredientNutrition,
+  IngredientDetail,
+  IngredientResponse,
   CategoryItem,
   HealthResponse,
   ApiError,
