@@ -463,3 +463,43 @@ Contributions welcome! Please check the main [Recipe API GitHub](https://github.
 ## License
 
 MIT
+
+
+### Recoverable recipe generation
+
+Generation can take several minutes. Submit a job and save its ID before waiting:
+
+```typescript
+import { RecipeApiClient, GenerationWaitTimeoutError } from '@recipe-api/sdk';
+
+const client = new RecipeApiClient({ apiKey: process.env.RECIPE_API_KEY });
+const submitted = await client.generate.submit({
+  title: 'Tomato soup', key_ingredients: ['tomatoes', 'olive oil'],
+});
+const jobId = submitted.data.id; // Persist this in your application's job record.
+try {
+  const { data: recipe } = await client.generate.wait(jobId, { timeout: 120_000 });
+  console.log(recipe.name);
+} catch (error) {
+  if (error instanceof GenerationWaitTimeoutError) {
+    // The server keeps working. Resume later with the SAME job ID.
+    const status = await client.generate.poll(error.jobId);
+    console.log(status.data.status);
+    // await client.generate.wait(error.jobId);
+  } else {
+    throw error;
+  }
+}
+```
+
+`wait()` defaults to a ten-minute deadline and polls once per second. It retries
+transient polling errors without resubmitting the generation. Passing an
+`AbortSignal` stops the local wait only; it does not cancel the server's job.
+A failed job reports its error and confirmed refund state. Interrupted jobs are
+reconciled automatically after their ten-minute lease expires.
+
+`submit()` is never automatically retried. If its response is lost before you
+receive a job ID, do not blindly submit again: the original reservation may still
+be running. Contact support to reconcile the outcome. `create()` keeps its
+synchronous response contract with a five-minute request timeout, but proxies may
+have shorter timeouts; prefer `submit()` and `wait()` for production integrations.

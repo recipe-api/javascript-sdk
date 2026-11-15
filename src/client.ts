@@ -285,6 +285,7 @@ export class RecipeApiClient {
           errorCode || `HTTP_${statusCode}`,
           errorMessage,
           statusCode,
+          data && typeof data === 'object' ? data : undefined,
         );
     }
   }

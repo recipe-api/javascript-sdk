@@ -17,7 +17,7 @@ export {
 export { RecipesResource } from './resources/recipes.js';
 export { IngredientsResource } from './resources/ingredients.js';
 export { DiscoveryResource } from './resources/discovery.js';
-export { GenerateResource } from './resources/generate.js';
+export { GenerateResource, GenerationWaitTimeoutError, type GenerationSubmission, type GenerationJobResponse, type GenerationWaitOptions } from './resources/generate.js';
 
 // Type definitions
 export type {
