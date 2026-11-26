@@ -67,7 +67,10 @@ export class RecipesResource {
   }
 
   /**
-   * Get a sample dinner recipe. Requires an API key and costs 1 request.
+   * @deprecated The /api/v1/dinner sample endpoint has been removed from the
+   * Recipe API, so this now fails with a 404. Use `get(id)` with a recipe id
+   * from `search()` or `list()` instead. Kept so existing code still compiles;
+   * it will be removed in the next major version.
    */
   async getDinner(): Promise<Recipe> {
     return this.client.request('GET', '/api/v1/dinner');

@@ -67,10 +67,6 @@ const client = new RecipeApiClient({
   apiKey: 'your-api-key',
 });
 
-// Get a sample dinner recipe (1 request)
-const dinner = await client.recipes.getDinner();
-console.log(dinner.name); // "Texas Chili con Carne"
-
 // Search recipes
 const results = await client.recipes.search('pasta', 1, 10);
 console.log(results.data.length); // 10 recipe summaries
@@ -435,11 +431,10 @@ const client = new RecipeApiClient({
 });
 ```
 
-Every endpoint except `/health` requires an API key, including the `/api/v1/dinner` sample:
+Every endpoint except `/health` requires an API key:
 
 ```typescript
 const client = new RecipeApiClient({ apiKey: process.env.RECIPE_API_KEY });
-const dinner = await client.recipes.getDinner(); // 1 request
 ```
 
 ## Roadmap
