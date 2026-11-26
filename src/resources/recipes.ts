@@ -15,7 +15,7 @@ export class RecipesResource {
   /**
    * Browse and search recipes with optional filtering
    * Discovery limited to 500 recipes; use filters for larger catalogs.
-   * No credit cost.
+   * Costs 1 request.
    */
   async list(filters?: RecipeSearchFilters): Promise<RecipeListResponse> {
     const params = new URLSearchParams();
@@ -56,7 +56,7 @@ export class RecipesResource {
 
   /**
    * Get full recipe by ID (requires API key)
-   * Costs 1 credit
+   * Costs 1 request
    */
   async get(id: string): Promise<RecipeResponse> {
     if (!id || typeof id !== 'string') {
@@ -67,7 +67,7 @@ export class RecipesResource {
   }
 
   /**
-   * Get a sample dinner recipe (no API key required)
+   * Get a sample dinner recipe. Requires an API key and costs 1 request.
    */
   async getDinner(): Promise<Recipe> {
     return this.client.request('GET', '/api/v1/dinner');

@@ -13,7 +13,7 @@ export class IngredientsResource {
 
   /**
    * Browse ingredients with optional filtering and pagination
-   * No credit cost
+   * Costs 1 request
    */
   async list(filters?: IngredientSearchFilters): Promise<IngredientListResponse> {
     const params = new URLSearchParams();
@@ -49,8 +49,8 @@ export class IngredientsResource {
 
   /**
    * Get a single ingredient with its full per-100g USDA nutrition.
-   * Discovery via list()/search() is free; this fetches the nutrition and
-   * costs 1 credit.
+   * Costs 1 request, like list()/search(); this fetches the nutrition and
+   * costs 1 request.
    */
   async get(id: string): Promise<IngredientResponse> {
     if (!id || typeof id !== 'string') {

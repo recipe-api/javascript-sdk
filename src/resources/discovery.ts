@@ -9,7 +9,7 @@ export class DiscoveryResource {
 
   /**
    * Get all recipe categories with recipe counts
-   * No credit cost
+   * Costs 1 request
    */
   async categories(): Promise<DiscoveryResponse<CategoryItem>> {
     return this.client.request('GET', '/api/v1/categories');
@@ -17,7 +17,7 @@ export class DiscoveryResource {
 
   /**
    * Get all cuisines with recipe counts
-   * No credit cost
+   * Costs 1 request
    */
   async cuisines(): Promise<DiscoveryResponse<CategoryItem>> {
     return this.client.request('GET', '/api/v1/cuisines');
@@ -25,7 +25,7 @@ export class DiscoveryResource {
 
   /**
    * Get all dietary flags with recipe counts
-   * No credit cost
+   * Costs 1 request
    */
   async dietaryFlags(): Promise<DiscoveryResponse<CategoryItem>> {
     return this.client.request('GET', '/api/v1/dietary-flags');

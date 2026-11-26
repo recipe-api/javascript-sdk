@@ -67,7 +67,7 @@ const client = new RecipeApiClient({
   apiKey: 'your-api-key',
 });
 
-// Get a sample dinner recipe (no API key required)
+// Get a sample dinner recipe (1 request)
 const dinner = await client.recipes.getDinner();
 console.log(dinner.name); // "Texas Chili con Carne"
 
@@ -75,7 +75,7 @@ console.log(dinner.name); // "Texas Chili con Carne"
 const results = await client.recipes.search('pasta', 1, 10);
 console.log(results.data.length); // 10 recipe summaries
 
-// Get full recipe details (costs 1 credit)
+// Get full recipe details (costs 1 request)
 const recipe = await client.recipes.get('recipe-id-here');
 console.log(recipe.data.nutrition.per_serving.calories);
 
@@ -152,13 +152,13 @@ await client.recipes.byProtein(20, 40);
 await client.recipes.byMacros(25, 35, 100, 150, 15, 25);
 await client.recipes.byIngredients(['ingredient-id-1', 'ingredient-id-2']);
 
-// Get recipe detail (costs 1 credit)
+// Get recipe detail (costs 1 request)
 const recipe = await client.recipes.get('recipe-uuid');
 ```
 
 ### Discovery
 
-Browse available categories, cuisines, and dietary options without credits.
+Browse available categories, cuisines, and dietary options. Every successful call, including these, uses 1 request from your allowance; failed calls are free.
 
 ```typescript
 // Get lists with counts
@@ -435,11 +435,11 @@ const client = new RecipeApiClient({
 });
 ```
 
-Some endpoints (like `/api/v1/dinner`) don't require authentication:
+Every endpoint except `/health` requires an API key, including the `/api/v1/dinner` sample:
 
 ```typescript
-// Works without API key
-const dinner = await client.recipes.getDinner();
+const client = new RecipeApiClient({ apiKey: process.env.RECIPE_API_KEY });
+const dinner = await client.recipes.getDinner(); // 1 request
 ```
 
 ## Roadmap
